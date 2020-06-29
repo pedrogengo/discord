@@ -1,6 +1,7 @@
 <h1 align='center'>
-    <img src='https://raw.githubusercontent.com/micebot/assets/master/images/logo-256x256.png'><br>
-    MiceBot :: Discord
+    <img src='https://raw.githubusercontent.com/micebot/assets/master/images/logo-256x256.png' height="150">
+    <img src='https://raw.githubusercontent.com/micebot/assets/master/images/discord-256x256.png' height="150"><br>
+    MiceBot
 </h1>
 <br>
 <div align='center'>
