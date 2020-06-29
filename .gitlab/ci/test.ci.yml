@@ -7,8 +7,8 @@ unit-test-and-coverage:
     - pip install poetry && poetry install
     - poetry export -f requirements.txt > requirements.txt
     - poetry run pylama micebot
-    - poetry run coverage run -m unittest discover -s test/unit -v
-    - poetry run coverage report
+    # - poetry run coverage run -m unittest discover -s test/unit -v
+    # - poetry run coverage report
 
   coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
 
