@@ -4,7 +4,8 @@ from discord import Client, Message, Role
 
 client = Client()
 
-ROLE_PERMISSION =  ['admin', 'renan']
+ROLE_PERMISSION = ['admin', 'renan']
+
 
 def author_can_message(roles: List[Role]) -> bool:
     for role in roles:
@@ -24,7 +25,7 @@ async def on_message(message: Message):
     if message.author == client.user:
         return
 
-    print(message.author.roles);
-    
+    print(message.author.roles)
+
     if author_can_message(message.author.roles):
         print('AOBAA')
