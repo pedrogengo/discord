@@ -1,6 +1,7 @@
 <h1 align='center'>
-    <img src='https://raw.githubusercontent.com/micebot/assets/master/images/logo-256x256.png'><br>
-    MiceBot :: Discord
+    <img src='https://raw.githubusercontent.com/micebot/assets/master/images/logo-256x256.png' height="150">
+    <img src='https://raw.githubusercontent.com/micebot/assets/master/images/discord-256x256.png' height="150"><br>
+    MiceBot
 </h1>
 <br>
 <div align='center'>
@@ -31,11 +32,11 @@ Este é, ainda, um trabalho em progresso. 🧀
 | **Master** | [![pipeline status][5]][6] | [![coverage report][7]][8] |
 
 [1]:https://gitlab.com/micebot/discord-ci/badges/development/pipeline.svg
-[2]:https://gitlab.com/micebot/discord-ci/-/commits/development
+[2]:https://gitlab.com/micebot/discord-ci/-/pipelines?page=1&scope=all&ref=development
 [3]:https://gitlab.com/micebot/discord-ci/badges/development/coverage.svg
 [4]:https://gitlab.com/micebot/discord-ci/-/commits/development
 [5]:https://gitlab.com/micebot/discord-ci/badges/master/pipeline.svg
-[6]:https://gitlab.com/micebot/discord-ci/-/commits/master
+[6]:https://gitlab.com/micebot/discord-ci/-/pipelines?page=1&scope=all&ref=master
 [7]:https://gitlab.com/micebot/discord-ci/badges/master/coverage.svg
 [8]:https://gitlab.com/micebot/discord-ci/-/commits/master
 [9]:https://github.com/codigofalado/desafio333
