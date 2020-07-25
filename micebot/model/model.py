@@ -47,6 +47,7 @@ class OrderQuery(BaseModel):
     limit: int = 8
     moderator: str = None
     owner: str = None
+    desc: bool = True
 
 
 class OrderWithTotal(BaseModel):

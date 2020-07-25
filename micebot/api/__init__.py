@@ -1,4 +1,4 @@
-from typing import Optional, List, Text, Dict, Callable
+from typing import Optional, List, Text, Dict
 
 from httpx import post, get, put, delete
 
@@ -165,8 +165,17 @@ class Api:
         return []
 
     def list_orders(
-        self, query: OrderQuery = OrderQuery(),
+        self, query: OrderQuery = OrderQuery()
     ) -> Optional[OrderWithTotal]:
+        """
+        List the registered orders.
+
+        Args:
+            - query: the query parameters.
+
+        Returns:
+            - the available orders for the query parameters provided.
+        """
         self._check_authentication()
 
         response = get(
@@ -176,22 +185,8 @@ class Api:
                 "owner": query.owner,
                 "skip": query.skip,
                 "limit": query.limit,
+                "desc": query.desc,
             },
-            headers={"Authorization": f"Bearer {self.access_token}"},
-        )
-
-        if response.status_code == 404:
-            ...  # No product registed yet.
-
-        if response.status_code == 200:
-            return OrderWithTotal(**response.json())
-
-    def list_latest_orders(self, limit: int = 8) -> Optional[OrderWithTotal]:
-        self._check_authentication()
-
-        response = get(
-            f"{self.endpoint}/orders/latest",
-            params={"limit": limit},
             headers={"Authorization": f"Bearer {self.access_token}"},
         )
 
