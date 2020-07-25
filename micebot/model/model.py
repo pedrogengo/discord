@@ -28,6 +28,17 @@ class Product(ProductBase):
     updated_at: Optional[datetime]
 
 
+class ProductTotal(BaseModel):
+    all: int
+    taken: int
+    available: int
+
+
+class ProductResponse(BaseModel):
+    total: ProductTotal
+    products: List[Product]
+
+
 class ProductQuery(BaseModel):
     taken: bool = False
     desc: bool = True
@@ -40,6 +51,11 @@ class Order(BaseModel):
     uuid: str
     requested_at: datetime
     product: Product
+
+
+class OrderTotal:
+    total: int
+    orders: List[Order]
 
 
 class OrderQuery(BaseModel):
