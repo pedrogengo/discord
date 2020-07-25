@@ -17,12 +17,71 @@
 </div>
 <br>
 
-**MiceBot** é uma aplicação desenvolvida durante o [#desafio333][9] com objetivo de tornar automatizado todo o processo de entrega de
-cupons de e-books sorteados durante as lives do canal [@codigofalado][10]. Este repositório contém o bot
-responsável pela integração com [`servidor/core`][11] por meio do Discord.
+Integração com o Discord que permite o gerenciamento de códigos dos produtos
+a serem resgatado durante as lives.
 
-Este é, ainda, um trabalho em progresso. 🧀
-<br>
+## Comandos
+
+### `!mice ls`
+Exibe os produtos registrados.
+
+
+### `!mice add`
+
+Insere um novo produto para ser entregue.
+
+*Parâmetros:*
+- `código` **(requerido)**: código que será disponibilizado para o usuário.
+- `descrição`: algum valor para identificar o código posteriormente, nos
+relatórios. Se nenhum valor for especificado, por padrão será assumido E-Book.
+
+*Restrições:*
+- não é possível adicionar um código que já foi inserido anteriormente.
+
+*Exemplos de uso:*
+
+`!mice add 5f3e922a-cef6-4db7-bf40-4d7b9cf66da0`
+
+`!mice add 5f3e922a-cef6-4db7-bf40-4d7b9cf66da0 Kindle`
+
+
+### `!mice edit`
+
+Permite editar um produto cadastrado anteriormente.
+
+*Parâmetros:*
+- `uuid`: **(requerido)**: identificador único do produto.
+- `código` **(requerido)**: novo código para ser atribuído ao produto.
+- `descrição`: algum valor para identificar o código posteriormente, nos
+relatórios. Se nenhum valor for especificado, por padrão será assumido E-Book.
+
+*Restrições:*
+- não é possível editar o produto utilizando um código já presente em outro.
+
+*Exemplos de uso:*
+
+`!mice edit uuid_do_produto 5f3e922a-cef6-4db7-bf40-4d7b9cf66da0`
+
+`!mice edit uuid_do_produto 5f3e922a-cef6-4db7-bf40-4d7b9cf66da0 Kindle`
+
+
+### `!mice remove`
+
+Remove um produto cadastrado para resgate.
+
+*Parâmetros:*
+- `uuid`: **(requerido)**: identificador único do produto.
+
+*Restrições:*
+- não é possível remover um produto que já foi resgatado.
+
+*Exemplos de uso:*
+
+`!mice remove uuid_do_produto`
+
+
+-----
+
 
 ## Development status
 
@@ -39,6 +98,3 @@ Este é, ainda, um trabalho em progresso. 🧀
 [6]:https://gitlab.com/micebot/discord-ci/-/pipelines?page=1&scope=all&ref=master
 [7]:https://gitlab.com/micebot/discord-ci/badges/master/coverage.svg
 [8]:https://gitlab.com/micebot/discord-ci/-/commits/master
-[9]:https://github.com/codigofalado/desafio333
-[10]:https://www.twitch.tv/codigofalado
-[11]:https://github.com/micebot/server
