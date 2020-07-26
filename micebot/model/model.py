@@ -34,6 +34,10 @@ class ProductTotal(BaseModel):
     available: int
 
 
+class ProductDeleteResponse(BaseModel):
+    deleted: bool
+
+
 class ProductResponse(BaseModel):
     total: ProductTotal
     products: List[Product]

@@ -4,5 +4,6 @@ from faker import Faker
 
 
 class Test(TestCase):
-    def setUp(self):
-        self.faker = Faker("pt_BR")
+    @classmethod
+    def setUpClass(cls):
+        cls.faker = Faker("pt_BR")

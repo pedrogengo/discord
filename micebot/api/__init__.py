@@ -10,6 +10,13 @@ from micebot.model.model import (
     OrderQuery,
     OrderWithTotal,
     ProductQuery,
+    ProductResponse,
+    ProductDeleteResponse,
+)
+from micebot.api.errors import (
+    CodeAlreadyRegistered,
+    UnknownNetworkError,
+    NotFoundForEdit,
 )
 
 
@@ -60,7 +67,7 @@ class Api:
         access_token = response.json().get("access_token")
         if not access_token:
             raise ValueError(
-                "The access_token key is not present"
+                "The access_token key is not present "
                 "on Authorization response."
             )
 
@@ -93,6 +100,10 @@ class Api:
         Args:
             - product: the required values for product creation.
 
+        Raises:
+            CodeAlreadyRegistered: when the code used to register the product
+                is already in use by another persisted product.
+
         Returns:
             - `None` if there is any fail on product creation, otherwise, if
             the server respond with http status 201, the product objet is
@@ -107,12 +118,33 @@ class Api:
         )
 
         if response.status_code == 409:
-            ...
+            raise CodeAlreadyRegistered(
+                f"{product.code} is already in use by another product."
+            )
 
         if response.status_code == 201:
             return Product(**response.json())
 
+        raise UnknownNetworkError(
+            f"Failed to add a product "
+            f"(status: {response.status_code} - data: {response.content})."
+        )
+
     def edit_product(self, product: ProductEdit) -> Optional[Product]:
+        """
+        Edit an existent product.
+
+        Args:
+            - the values for edit a product.
+
+        Raises:
+            NotFoundForEdit: when no product was found for the uuid provided.
+            CodeAlreadyRegistered: when the code used to register the product
+                is already in use by another persisted product.
+
+        Returns:
+            - the created product data.
+        """
         self._check_authentication()
 
         response = put(
@@ -122,16 +154,24 @@ class Api:
         )
 
         if response.status_code == 404:
-            ...  # product not found
+            raise NotFoundForEdit(
+                f'Product with uuid "{product.uuid} is not found.'
+            )
 
         if response.status_code == 409:
-            ...  # code already in use.
+            raise CodeAlreadyRegistered(
+                f"{product.code} is already in use by another product."
+            )
 
-        return Product(**response.json())
+        if response.status_code == 200:
+            return Product(**response.json())
 
-    def delete_product(
-        self, product: ProductDelete
-    ) -> Optional[Dict[Text, bool]]:
+        raise UnknownNetworkError(
+            f"Failed to add a product "
+            f"(status: {response.status_code} - data: {response.content})."
+        )
+
+    def delete_product(self, product: ProductDelete) -> ProductDeleteResponse:
         self._check_authentication()
 
         response = delete(
@@ -145,9 +185,9 @@ class Api:
         if response.status_code == 401:
             ...  # code already taken
 
-        return dict(**response.json())
+        return ProductDeleteResponse(**response.json())
 
-    def list_products(self, query: ProductQuery) -> List[Product]:
+    def list_products(self, query: ProductQuery) -> ProductResponse:
         self._check_authentication()
 
         response = get(
@@ -160,7 +200,7 @@ class Api:
             ...  # No product registed yet.
 
         if response.status_code == 200:
-            return [Product(**content) for content in response.json()]
+            return ProductResponse(**response.json())
 
         return []
 
