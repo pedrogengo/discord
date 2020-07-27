@@ -1,4 +1,4 @@
-from typing import Optional, List, Text, Dict
+from typing import Optional, Text, NoReturn
 
 from httpx import post, get, put, delete
 
@@ -16,14 +16,16 @@ from micebot.model.model import (
 from micebot.api.errors import (
     CodeAlreadyRegistered,
     UnknownNetworkError,
-    NotFoundForEdit,
+    ProductNotFound,
+    ProductAlreadyTaken,
+    OrderNotFound,
 )
 
 
 class Api:
     def __init__(self, endpoint: str, username: str, password: str):
         """
-        Init the API instance.
+        Init the API.
 
         Args:
             - endpoint: the API endpoint.
@@ -36,7 +38,10 @@ class Api:
         self.access_token = None
         self.DATE_TIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
-    def _check_authentication(self):
+    def _check_authentication(self) -> NoReturn:
+        """
+        Authenticate the user if its not authenticated yet.
+        """
         if not self.heartbeat():
             self.authenticate()
 
@@ -45,7 +50,7 @@ class Api:
         Get the access token.
 
         Returns:
-            - the access token value, if present. Otherwise, `None` is returned.
+            - the access token if present. Otherwise, `None`is returned.
         """
         return self.access_token
 
@@ -81,7 +86,15 @@ class Api:
         Returns:
             - the specific heartbeat response associate to request.
         """
-        response = get(f"{self.endpoint}/hb")
+        access_token = self.get_access_token()
+
+        if not access_token:
+            return False
+
+        response = get(
+            f"{self.endpoint}/hb/",
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
 
         if response.status_code == 401:
             return False
@@ -101,20 +114,19 @@ class Api:
             - product: the required values for product creation.
 
         Raises:
-            CodeAlreadyRegistered: when the code used to register the product
-                is already in use by another persisted product.
+            CodeAlreadyRegistered: when the code used to register the
+                product is already in use by another persisted product.
+            UnknownNetworkError: when any unknown network error happens.
 
         Returns:
-            - `None` if there is any fail on product creation, otherwise, if
-            the server respond with http status 201, the product objet is
-            returned.
+            - the API response for a creation operation.
         """
         self._check_authentication()
 
         response = post(
             f"{self.endpoint}/products/",
             json={"code": product.code, "summary": product.summary},
-            headers={"Authorization": f"Bearer {self.access_token}"},
+            headers={"Authorization": f"Bearer {self.get_access_token()}"},
         )
 
         if response.status_code == 409:
@@ -122,40 +134,40 @@ class Api:
                 f"{product.code} is already in use by another product."
             )
 
-        if response.status_code == 201:
-            return Product(**response.json())
-
-        raise UnknownNetworkError(
-            f"Failed to add a product "
-            f"(status: {response.status_code} - data: {response.content})."
-        )
+        if response.status_code != 201:
+            raise UnknownNetworkError(
+                f"Failed to add a product, network error: "
+                f"(status: {response.status_code} - data: {response.content})."
+            )
+        return Product(**response.json())
 
     def edit_product(self, product: ProductEdit) -> Optional[Product]:
         """
         Edit an existent product.
 
         Args:
-            - the values for edit a product.
+            - product: the parameters for edit a product.
 
         Raises:
-            NotFoundForEdit: when no product was found for the uuid provided.
-            CodeAlreadyRegistered: when the code used to register the product
-                is already in use by another persisted product.
+            ProductNotFound: when no product was found for the uuid provided.
+            CodeAlreadyRegistered: when the code used to register the
+                product is already in use by another persisted product.
+            UnknownNetworkError: when any unknown network error happens.
 
         Returns:
-            - the created product data.
+            - the API response for an edit operation.
         """
         self._check_authentication()
 
         response = put(
             f"{self.endpoint}/products/{product.uuid}",
             json={"code": product.code, "summary": product.summary},
-            headers={"Authorization": f"Bearer {self.access_token}"},
+            headers={"Authorization": f"Bearer {self.get_access_token()}"},
         )
 
         if response.status_code == 404:
-            raise NotFoundForEdit(
-                f'Product with uuid "{product.uuid} is not found.'
+            raise ProductNotFound(
+                f"Product with uuid {product.uuid} not found."
             )
 
         if response.status_code == 409:
@@ -163,31 +175,68 @@ class Api:
                 f"{product.code} is already in use by another product."
             )
 
-        if response.status_code == 200:
-            return Product(**response.json())
-
-        raise UnknownNetworkError(
-            f"Failed to add a product "
-            f"(status: {response.status_code} - data: {response.content})."
-        )
+        if response.status_code != 200:
+            raise UnknownNetworkError(
+                f"Failed to edit a product, network error: "
+                f"(status: {response.status_code} - data: {response.content})."
+            )
+        return Product(**response.json())
 
     def delete_product(self, product: ProductDelete) -> ProductDeleteResponse:
+        """
+        Delete an existent product.
+
+        Args:
+            - product: the parameters for remove a product.
+
+        Raises:
+            ProductNotFound: when no product was found for the uuid provided.
+            ProductAlreadyTaken: when the product is already taken.
+            UnknownNetworkError: when any unknown network error happens.
+
+        Returns:
+            - the API response from a delete operation.
+        """
         self._check_authentication()
 
         response = delete(
             f"{self.endpoint}/products/{product.uuid}",
-            headers={"Authorization": f"Bearer {self.access_token}"},
+            headers={"Authorization": f"Bearer {self.get_access_token()}"},
         )
 
         if response.status_code == 404:
-            ...  # product not found
+            raise ProductNotFound(
+                f"Product with uuid {product.uuid} not found."
+            )
 
         if response.status_code == 401:
-            ...  # code already taken
+            raise ProductAlreadyTaken(
+                f"Cannot delete the product {product.uuid}, "
+                f"because it is already taken."
+            )
+
+        if response.status_code != 200:
+            raise UnknownNetworkError(
+                f"Failed to remove a product, network error: "
+                f"(status: {response.status_code} - data: {response.content})."
+            )
 
         return ProductDeleteResponse(**response.json())
 
     def list_products(self, query: ProductQuery) -> ProductResponse:
+        """
+        List the registered products.
+
+        Args:
+            - query: the query parameters for list products.
+
+        Raises:
+            ProductNotFound: when there is no product registed yet.
+            UnknownNetworkError: when any unknown network error happens.
+
+        Returns:
+            - the API response from a delete operation.
+        """
         self._check_authentication()
 
         response = get(
@@ -197,12 +246,14 @@ class Api:
         )
 
         if response.status_code == 404:
-            ...  # No product registed yet.
+            raise ProductNotFound("No product registered yet!")
 
-        if response.status_code == 200:
-            return ProductResponse(**response.json())
-
-        return []
+        if response.status_code != 200:
+            raise UnknownNetworkError(
+                f"Failed to list the products, network error: "
+                f"(status: {response.status_code} - data: {response.content})."
+            )
+        return ProductResponse(**response.json())
 
     def list_orders(
         self, query: OrderQuery = OrderQuery()
@@ -211,7 +262,11 @@ class Api:
         List the registered orders.
 
         Args:
-            - query: the query parameters.
+            - query: the query parameters for list orders.
+
+        Raises:
+            OrderNotFound: when there is no orders registed yet.
+            UnknownNetworkError: when any unknown network error happens.
 
         Returns:
             - the available orders for the query parameters provided.
@@ -231,7 +286,12 @@ class Api:
         )
 
         if response.status_code == 404:
-            ...  # No product registed yet.
+            raise OrderNotFound("No orders registered yet!")
 
-        if response.status_code == 200:
-            return OrderWithTotal(**response.json())
+        if response.status_code != 200:
+            raise UnknownNetworkError(
+                f"Failed to list the orders, network error: "
+                f"(status: {response.status_code} - data: {response.content})."
+            )
+
+        return OrderWithTotal(**response.json())

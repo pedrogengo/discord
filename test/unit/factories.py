@@ -9,6 +9,7 @@ from micebot.model.model import (
     Order,
     OrderQuery,
     OrderWithTotal,
+    ProductDeleteResponse,
 )
 
 
@@ -34,6 +35,13 @@ class ProductDeleteFactory(Factory):
         model = ProductDelete
 
     uuid = Faker("uuid4")
+
+
+class ProductDeleteResponseFactory(Factory):
+    class Meta:
+        model = ProductDeleteResponse
+
+    deleted = Faker("boolean")
 
 
 class ProductFactory(Factory):
