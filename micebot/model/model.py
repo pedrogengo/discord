@@ -46,6 +46,7 @@ class ProductResponse(BaseModel):
 class ProductQuery(BaseModel):
     taken: bool = False
     desc: bool = True
+    limit: int = 0
 
 
 class Order(BaseModel):
@@ -64,7 +65,7 @@ class OrderTotal:
 
 class OrderQuery(BaseModel):
     skip: int = 0
-    limit: int = 8
+    limit: int = 0
     moderator: str = None
     owner: str = None
     desc: bool = True

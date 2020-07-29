@@ -241,7 +241,11 @@ class Api:
 
         response = get(
             f"{self.endpoint}/products/",
-            params={"taken": query.taken, "desc": query.desc},
+            params={
+                "taken": query.taken,
+                "desc": query.desc,
+                "limit": query.limit
+            },
             headers={"Authorization": f"Bearer {self.access_token}"},
         )
 
@@ -257,7 +261,7 @@ class Api:
 
     def list_orders(
         self, query: OrderQuery = OrderQuery()
-    ) -> Optional[OrderWithTotal]:
+    ) -> OrderWithTotal:
         """
         List the registered orders.
 

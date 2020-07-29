@@ -1,12 +1,8 @@
-import sys
-
-from discord.ext.commands import Bot, has_role
+from discord.ext.commands import Bot
 
 from micebot.api import Api
-from micebot.client.order_commands import register as register_order_commands
-from micebot.client.product_commands import (
-    register as register_product_commands,
-)
+from micebot.commands.orders import register as register_order_commands
+from micebot.commands.products import register as register_product_commands
 from micebot.model.env import env
 
 api = Api(
@@ -14,7 +10,6 @@ api = Api(
     username=env.discord_user,
     password=env.discord_pass,
 )
-
 
 bot = Bot(command_prefix=env.command_prefix)
 
@@ -29,4 +24,4 @@ async def on_ready():
         print("MiceBot is ready to receive commands. 🧀")
     else:
         print("Fail to connect to API, check logs.")
-        sys.exit(1)
+        exit(1)

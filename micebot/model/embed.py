@@ -15,9 +15,11 @@ class Field:
 
 def embed(
     title: str,
-    fields: List[List[Field]],
+    fields: List[List[Field]] = None,
     description: str = None,
     footer: str = None,
+    color: Colour = Colour.lighter_grey(),
+    thumbnail: bool = False
 ) -> Embed:
     """
     Create an embed using generic settings.
@@ -34,17 +36,20 @@ def embed(
         - the embed instance.
     """
     embed_content = Embed(
-        title=title, description=description, colour=Colour.lighter_grey()
+        title=title, description=description, colour=color
     )
-    embed_content.set_thumbnail(url=env.thumbnail_url)
 
-    for field in fields:
-        for field_line in field:
-            embed_content.add_field(
-                name=field_line.key,
-                value=field_line.value,
-                inline=field_line.inline,
-            )
+    if thumbnail:
+        embed_content.set_thumbnail(url=env.thumbnail_url)
+
+    if fields:
+        for field in fields:
+            for field_line in field:
+                embed_content.add_field(
+                    name=field_line.key,
+                    value=field_line.value,
+                    inline=field_line.inline,
+                )
 
     if footer:
         embed_content.set_footer(text=footer)
