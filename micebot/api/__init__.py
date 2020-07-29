@@ -246,7 +246,7 @@ class Api:
                 "desc": query.desc,
                 "limit": query.limit
             },
-            headers={"Authorization": f"Bearer {self.access_token}"},
+            headers={"Authorization": f"Bearer {self.get_access_token()}"},
         )
 
         if response.status_code == 404:
@@ -286,7 +286,7 @@ class Api:
                 "limit": query.limit,
                 "desc": query.desc,
             },
-            headers={"Authorization": f"Bearer {self.access_token}"},
+            headers={"Authorization": f"Bearer {self.get_access_token()}"},
         )
 
         if response.status_code == 404:
