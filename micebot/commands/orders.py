@@ -13,7 +13,7 @@ def register(bot: Bot, api: Api):
         response = api.list_orders(query=OrderQuery(limit=int(limit)))
 
         if response.total == 0:
-            ...
+            """TODO: dar feedback se não tiver pedidos no BD."""
 
         else:
             await ctx.message.delete()
@@ -34,15 +34,17 @@ def register(bot: Bot, api: Api):
                                     key="Entregue em",
                                     value=order.requested_at.strftime(
                                         env.datetime_formatter
-                                    ),
-                                    inline=False,
+                                    ), inline=False
                                 ),
                                 Field(
-                                    key="De / Para",
-                                    value=f"{order.mod_display_name} / {order.owner_display_name}",
+                                    key="Entregue por",
+                                    value=order.mod_display_name,
                                 ),
-                                Field(key="Código", value=order.product.code),
-                                Field(key="UUID", value=order.product.uuid),
+                                Field(
+                                    key="Entregue para",
+                                    value=order.owner_display_name,
+                                ),
+                                Field(key=f"Código do {order.product.summary}", value=order.product.code),
                             ]
                         ],
                     )
