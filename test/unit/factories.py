@@ -10,6 +10,8 @@ from micebot.model.model import (
     OrderQuery,
     OrderWithTotal,
     ProductDeleteResponse,
+    ProductResponse,
+    ProductTotal,
 )
 
 
@@ -62,6 +64,24 @@ class ProductQueryFactory(Factory):
 
     taken = Faker("boolean")
     desc = Faker("boolean")
+    limit = Faker("boolean")
+
+
+class ProductTotalFactory(Factory):
+    class Meta:
+        model = ProductTotal
+
+    all = Faker("pyint")
+    taken = Faker("pyint")
+    available = Faker("pyint")
+
+
+class ProductResponseFactory(Factory):
+    class Meta:
+        model = ProductResponse
+
+    total = SubFactory(ProductTotalFactory)
+    products = List([SubFactory(ProductFactory) for _ in range(5)])
 
 
 class OrderFactory(Factory):

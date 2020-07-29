@@ -6,6 +6,7 @@ from micebot.api import (
     UnknownNetworkError,
     ProductNotFound,
     ProductAlreadyTaken,
+    OrderNotFound,
 )
 from test.unit.factories import (
     ProductCreationFactory,
@@ -13,6 +14,9 @@ from test.unit.factories import (
     ProductEditFactory,
     ProductDeleteFactory,
     ProductDeleteResponseFactory,
+    ProductQueryFactory,
+    OrderQueryFactory,
+    ProductResponseFactory, OrderFactory, OrderWithTotalFactory,
 )
 from test.unit.test_case import Test
 
@@ -28,6 +32,17 @@ class TestAPI(Test):
             username=self.username,
             password=self.password,
         )
+
+
+class TestCheckAuthentication(TestAPI):
+    @patch("micebot.api.Api.heartbeat", return_value=False)
+    @patch("micebot.api.Api.authenticate")
+    def test_should_call_authenticate_when_heartbeat_returns_false(
+        self, authenticate, heartbeat
+    ):
+        self.api._check_authentication()
+        authenticate.assert_called_once()
+        heartbeat.assert_called_once()
 
 
 class TestAuthenticate(TestAPI):
@@ -539,3 +554,244 @@ class TestDeleteProduct(TestAPI):
             headers={"Authorization": f"Bearer {access_token}"},
         )
         check_authentication.assert_called_once()
+
+
+class TestListProducts(TestAPI):
+    @patch("micebot.api.get")
+    @patch("micebot.api.Api._check_authentication")
+    @patch("micebot.api.Api.get_access_token")
+    def test_should_raise_product_not_found_when_http_status_is_404(
+        self, get_access_token, check_authentication, get
+    ):
+        access_token = self.faker.sha256()
+        response = MagicMock()
+        response.status_code = 404
+        query = ProductQueryFactory()
+
+        get_access_token.return_value = access_token
+        get.return_value = response
+
+        with self.assertRaises(ProductNotFound) as context:
+            self.api.list_products(query=query)
+
+        self.assertEqual("No product registered yet!", str(context.exception))
+        check_authentication.assert_called_once()
+        get.assert_called_with(
+            f"{self.endpoint}/products/",
+            params={
+                "taken": query.taken,
+                "desc": query.desc,
+                "limit": query.limit,
+            },
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+
+    @patch("micebot.api.get")
+    @patch("micebot.api.Api._check_authentication")
+    @patch("micebot.api.Api.get_access_token")
+    def test_should_raise_unknown_network_error_when_http_status_is_not_200(
+        self, get_access_token, check_authentication, get
+    ):
+        access_token = self.faker.sha256()
+        http_status = self.faker.pyint(min_value=201, max_value=403)
+        request_body = self.faker.sentence()
+        query = ProductQueryFactory()
+
+        response = MagicMock()
+        response.status_code = http_status
+        response.content = request_body
+
+        get_access_token.return_value = access_token
+        get.return_value = response
+
+        with self.assertRaises(UnknownNetworkError) as context:
+            self.api.list_products(query=query)
+
+        self.assertEqual(
+            f"Failed to list the products, network error: "
+            f"(status: {http_status} - data: {request_body}).",
+            str(context.exception),
+        )
+        check_authentication.assert_called_once()
+        get.assert_called_with(
+            f"{self.endpoint}/products/",
+            params={
+                "taken": query.taken,
+                "desc": query.desc,
+                "limit": query.limit,
+            },
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+
+    @patch("micebot.api.get")
+    @patch("micebot.api.Api._check_authentication")
+    @patch("micebot.api.Api.get_access_token")
+    def test_should_return_the_product_response_when_http_status_is_200(
+        self, get_access_token, check_authentication, get
+    ):
+        access_token = self.faker.sha256()
+        product = ProductFactory()
+        product_query = ProductQueryFactory()
+        product_response = ProductResponseFactory(products=[product])
+
+        response = MagicMock()
+        response.status_code = 200
+        response.json.return_value = {
+            "total": {
+                "all": product_response.total.all,
+                "taken": product_response.total.taken,
+                "available": product_response.total.available,
+            },
+            "products": [
+                {
+                    "uuid": product.uuid,
+                    "code": product.code,
+                    "summary": product.summary,
+                    "taken": product.taken,
+                    "created_at": product.created_at,
+                    "updated_at": product.updated_at,
+                }
+            ],
+        }
+
+        get_access_token.return_value = access_token
+        get.return_value = response
+
+        self.assertEqual(
+            product_response, self.api.list_products(query=product_query)
+        )
+        check_authentication.assert_called_once()
+        get_access_token.assert_called_once()
+        get.asset_called_with(
+            f"{self.endpoint}/products/",
+            params={
+                "taken": product_query.taken,
+                "desc": product_query.desc,
+                "limit": product_query.limit,
+            },
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+
+
+class TestListOrders(TestAPI):
+    @patch("micebot.api.get")
+    @patch("micebot.api.Api._check_authentication")
+    @patch("micebot.api.Api.get_access_token")
+    def test_should_raise_order_not_found_when_http_status_is_404(
+        self, get_access_token, check_authentication, get
+    ):
+        access_token = self.faker.sha256()
+        response = MagicMock()
+        response.status_code = 404
+        query = OrderQueryFactory()
+
+        get_access_token.return_value = access_token
+        get.return_value = response
+
+        with self.assertRaises(OrderNotFound) as context:
+            self.api.list_orders(query=query)
+
+        self.assertEqual("No orders registered yet!", str(context.exception))
+        check_authentication.assert_called_once()
+        get.assert_called_with(
+            f"{self.endpoint}/orders/",
+            params={
+                "moderator": query.moderator,
+                "owner": query.owner,
+                "skip": query.skip,
+                "limit": query.limit,
+                "desc": query.desc,
+            },
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+
+    @patch("micebot.api.get")
+    @patch("micebot.api.Api._check_authentication")
+    @patch("micebot.api.Api.get_access_token")
+    def test_should_raise_unknown_network_error_when_http_status_is_not_200(
+        self, get_access_token, check_authentication, get
+    ):
+        http_status = self.faker.pyint(min_value=201, max_value=403)
+        request_body = self.faker.sentence()
+
+        access_token = self.faker.sha256()
+        response = MagicMock()
+        response.status_code = http_status
+        response.content = request_body
+        query = OrderQueryFactory()
+
+        get_access_token.return_value = access_token
+        get.return_value = response
+
+        with self.assertRaises(UnknownNetworkError) as context:
+            self.api.list_orders(query=query)
+
+        self.assertEqual(
+            "Failed to list the orders, network error: "
+            f"(status: {http_status} - data: {request_body}).",
+            str(context.exception),
+        )
+        check_authentication.assert_called_once()
+        get.assert_called_with(
+            f"{self.endpoint}/orders/",
+            params={
+                "moderator": query.moderator,
+                "owner": query.owner,
+                "skip": query.skip,
+                "limit": query.limit,
+                "desc": query.desc,
+            },
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+
+    @patch("micebot.api.get")
+    @patch("micebot.api.Api._check_authentication")
+    @patch("micebot.api.Api.get_access_token")
+    def test_should_the_orders_total_when_http_status_is_200(
+        self, get_access_token, check_authentication, get
+    ):
+        order = OrderFactory()
+        order_with_total = OrderWithTotalFactory(orders=[order])
+        access_token = self.faker.sha256()
+
+        response = MagicMock()
+        response.status_code = 200
+        response.json.return_value = {
+            'total': order_with_total.total,
+            'orders': [
+                {
+                    'mod_id': order.mod_id,
+                    'mod_display_name': order.mod_display_name,
+                    'owner_display_name': order.owner_display_name,
+                    'uuid': order.uuid,
+                    'requested_at': order.requested_at,
+                    'product': {
+                        "uuid": order.product.uuid,
+                        "code": order.product.code,
+                        "summary": order.product.summary,
+                        "taken": order.product.taken,
+                        "created_at": order.product.created_at,
+                        "updated_at": order.product.updated_at,
+                    }
+                }
+            ]
+        }
+        query = OrderQueryFactory()
+
+        get_access_token.return_value = access_token
+        get.return_value = response
+
+        self.assertEqual(order_with_total, self.api.list_orders(query=query))
+        check_authentication.assert_called_once()
+        get_access_token.assert_called_once()
+        get.assert_called_with(
+            f"{self.endpoint}/orders/",
+            params={
+                "moderator": query.moderator,
+                "owner": query.owner,
+                "skip": query.skip,
+                "limit": query.limit,
+                "desc": query.desc,
+            },
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
