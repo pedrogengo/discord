@@ -1,5 +1,4 @@
-from os import environ
+from micebot.bot import bot
+from micebot.model.env import env
 
-from micebot.client import client
-
-client.run(environ.get("DISCORD_TOKEN"))
+bot.run(env.discord_token)

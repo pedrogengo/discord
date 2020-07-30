@@ -1,0 +1,13 @@
+[run]
+source = micebot
+
+[report]
+omit =
+    micebot/__main__.py
+
+exclude_lines =
+    pragma: no cover
+#fail_under = 90
+
+[html]
+directory = test/coverage
