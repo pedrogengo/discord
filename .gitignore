@@ -9,6 +9,6 @@ __pycache__
 
 # Test / Coverage
 .coverage
-test/unit/coverage
+test/coverage
 
 .venv
