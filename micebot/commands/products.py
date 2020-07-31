@@ -18,7 +18,8 @@ from micebot.model.messages import (
 from micebot.model.model import (
     ProductCreation,
     ProductEdit,
-    ProductDelete, ProductQuery,
+    ProductDelete,
+    ProductQuery,
 )
 
 DEFAULT_FOOTER = "Essa mensagem será removida após 30 segundos."
@@ -101,7 +102,7 @@ def register(bot: Bot, api: Api):
                 product=ProductEdit(uuid=uuid, code=code, summary=summary)
             )
             if updated_product:
-                desc = f"Acabei de atualizar os dados do produto."
+                desc = "Acabei de atualizar os dados do produto."
                 fields = [
                     [
                         Field(
@@ -169,29 +170,31 @@ def register(bot: Bot, api: Api):
             )
 
     @bot.command()
-    async def ls(ctx: Context, limit: str = '5'):
+    async def ls(ctx: Context, limit: str = "5"):
 
-        products = api.list_products(ProductQuery(
-            taken=False,
-            desc=True,
-            limit=int(limit)
-        ))
+        products = api.list_products(
+            ProductQuery(taken=False, desc=True, limit=int(limit))
+        )
 
         await ctx.message.delete()
         await ctx.channel.send(
             embed=embed(
-                title='Detalhamento',
-                description='Esses são os dados que tenho até o momento:',
+                title="Detalhamento",
+                description="Esses são os dados que tenho até o momento:",
                 thumbnail=True,
                 color=Colour.green(),
                 fields=[
                     [
                         Field(key="Total", value=str(products.total.all)),
-                        Field(key="Disponíveis", value=str(products.total.available)),
-                        Field(key="Resgatados", value=str(products.total.taken)),
-
+                        Field(
+                            key="Disponíveis",
+                            value=str(products.total.available),
+                        ),
+                        Field(
+                            key="Resgatados", value=str(products.total.taken)
+                        ),
                     ]
-                ]
+                ],
             )
         )
 
@@ -201,7 +204,9 @@ def register(bot: Bot, api: Api):
                     title=product.code,
                     fields=[
                         [
-                            Field(key="UUID", value=product.uuid, inline=False),
+                            Field(
+                                key="UUID", value=product.uuid, inline=False
+                            ),
                             Field(key="descrição", value=product.summary),
                             Field(
                                 key="criado em",
@@ -209,14 +214,12 @@ def register(bot: Bot, api: Api):
                                     env.datetime_formatter
                                 ),
                                 inline=False,
-                            )
+                            ),
                         ]
-                        ]
-            ))
+                    ],
+                )
+            )
 
         await ctx.channel.send(
-            embed=embed(
-                title='Final do Relatório.',
-                color=Colour.green()
-            )
+            embed=embed(title="Final do Relatório.", color=Colour.green())
         )

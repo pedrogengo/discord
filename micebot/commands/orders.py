@@ -19,22 +19,23 @@ def register(bot: Bot, api: Api):
             await ctx.message.delete()
             await ctx.channel.send(
                 embed=embed(
-                    title=f"Útimos itens resgatados",
-                    description=f"Aqui estão os {limit} itens resgatados de um total de {response.total}.",
+                    title="Útimos itens resgatados",
+                    description=f"Aqui estão os {limit} itens resgatados "
+                    f"de um total de {response.total}.",
                 )
             )
             for order in response.orders:
                 await ctx.channel.send(
                     embed=embed(
                         title=order.uuid,
-                        # description="Aqui estão os últimos itens resgatados.",
                         fields=[
                             [
                                 Field(
                                     key="Entregue em",
                                     value=order.requested_at.strftime(
                                         env.datetime_formatter
-                                    ), inline=False
+                                    ),
+                                    inline=False,
                                 ),
                                 Field(
                                     key="Entregue por",
@@ -44,7 +45,10 @@ def register(bot: Bot, api: Api):
                                     key="Entregue para",
                                     value=order.owner_display_name,
                                 ),
-                                Field(key=f"Código do {order.product.summary}", value=order.product.code),
+                                Field(
+                                    key=f"Código do {order.product.summary}",
+                                    value=order.product.code,
+                                ),
                             ]
                         ],
                     )

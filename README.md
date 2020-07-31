@@ -22,8 +22,36 @@ a serem resgatado durante as lives.
 
 ## Comandos
 
+### `!mice orders`
+
+Exibe os últimos pedidos entregues, isto é, pode-se visualizar a data da
+entrega, o nome do moderador responsável e o nome do usuário que recebeu
+a premiação.
+
+*Parâmetros:*
+- `limite`: número máximo de itens para exibir. Se nenhum valor for
+especificado, por padrão, 5 itens serão exibidos.
+
+*Exemplos de uso:*
+
+`!mice orders`
+
+`!mice orders 2`
+
+
 ### `!mice ls`
+
 Exibe os produtos registrados.
+
+*Parâmetros:*
+- `limite`: número máximo de itens para exibir. Se nenhum valor for
+especificado, por padrão, 5 itens serão exibidos.
+
+*Exemplos de uso:*
+
+`!mice ls`
+
+`!mice ls 2`
 
 
 ### `!mice add`

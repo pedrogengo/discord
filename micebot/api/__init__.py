@@ -244,7 +244,7 @@ class Api:
             params={
                 "taken": query.taken,
                 "desc": query.desc,
-                "limit": query.limit
+                "limit": query.limit,
             },
             headers={"Authorization": f"Bearer {self.get_access_token()}"},
         )
@@ -259,9 +259,7 @@ class Api:
             )
         return ProductResponse(**response.json())
 
-    def list_orders(
-        self, query: OrderQuery = OrderQuery()
-    ) -> OrderWithTotal:
+    def list_orders(self, query: OrderQuery = OrderQuery()) -> OrderWithTotal:
         """
         List the registered orders.
 

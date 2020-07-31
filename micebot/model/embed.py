@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import List
 
 from attr import dataclass
 from discord import Embed, Colour
@@ -19,7 +19,7 @@ def embed(
     description: str = None,
     footer: str = None,
     color: Colour = Colour.lighter_grey(),
-    thumbnail: bool = False
+    thumbnail: bool = False,
 ) -> Embed:
     """
     Create an embed using generic settings.
@@ -35,9 +35,7 @@ def embed(
     Returns:
         - the embed instance.
     """
-    embed_content = Embed(
-        title=title, description=description, colour=color
-    )
+    embed_content = Embed(title=title, description=description, colour=color)
 
     if thumbnail:
         embed_content.set_thumbnail(url=env.thumbnail_url)
