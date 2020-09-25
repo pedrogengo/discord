@@ -16,7 +16,9 @@ from test.unit.factories import (
     ProductDeleteResponseFactory,
     ProductQueryFactory,
     OrderQueryFactory,
-    ProductResponseFactory, OrderFactory, OrderWithTotalFactory,
+    ProductResponseFactory,
+    OrderFactory,
+    OrderWithTotalFactory,
 )
 from test.unit.test_case import Test
 
@@ -106,9 +108,7 @@ class TestAuthenticate(TestAPI):
 class TestHeartbeat(TestAPI):
     @patch("micebot.api.get")
     @patch("micebot.api.Api.get_access_token", return_value=None)
-    def test_should_return_false_access_token_is_none(
-        self, get_access_token, get
-    ):
+    def test_should_return_false_access_token_is_none(self, get_access_token, get):
         self.assertFalse(self.api.heartbeat())
         get_access_token.assert_called_once()
         get.assert_not_called()
@@ -537,9 +537,7 @@ class TestDeleteProduct(TestAPI):
 
         response = MagicMock()
         response.status_code = 200
-        response.json.return_value = {
-            "deleted": product_delete_response.deleted
-        }
+        response.json.return_value = {"deleted": product_delete_response.deleted}
         access_token = self.faker.sha256()
 
         get_access_token.return_value = access_token
@@ -657,9 +655,7 @@ class TestListProducts(TestAPI):
         get_access_token.return_value = access_token
         get.return_value = response
 
-        self.assertEqual(
-            product_response, self.api.list_products(query=product_query)
-        )
+        self.assertEqual(product_response, self.api.list_products(query=product_query))
         check_authentication.assert_called_once()
         get_access_token.assert_called_once()
         get.asset_called_with(
@@ -757,24 +753,24 @@ class TestListOrders(TestAPI):
         response = MagicMock()
         response.status_code = 200
         response.json.return_value = {
-            'total': order_with_total.total,
-            'orders': [
+            "total": order_with_total.total,
+            "orders": [
                 {
-                    'mod_id': order.mod_id,
-                    'mod_display_name': order.mod_display_name,
-                    'owner_display_name': order.owner_display_name,
-                    'uuid': order.uuid,
-                    'requested_at': order.requested_at,
-                    'product': {
+                    "mod_id": order.mod_id,
+                    "mod_display_name": order.mod_display_name,
+                    "owner_display_name": order.owner_display_name,
+                    "uuid": order.uuid,
+                    "requested_at": order.requested_at,
+                    "product": {
                         "uuid": order.product.uuid,
                         "code": order.product.code,
                         "summary": order.product.summary,
                         "taken": order.product.taken,
                         "created_at": order.product.created_at,
                         "updated_at": order.product.updated_at,
-                    }
+                    },
                 }
-            ]
+            ],
         }
         query = OrderQueryFactory()
 

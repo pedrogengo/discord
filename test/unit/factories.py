@@ -92,9 +92,7 @@ class OrderFactory(Factory):
     mod_display_name = Faker("user_name")
     owner_display_name = Faker("user_name")
     uuid = Faker("uuid4")
-    requested_at = Faker(
-        "date_time_between", start_date="-30d", end_date="-10d"
-    )
+    requested_at = Faker("date_time_between", start_date="-30d", end_date="-10d")
     product = SubFactory(ProductFactory)
 
 

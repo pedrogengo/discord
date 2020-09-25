@@ -26,7 +26,7 @@ DEFAULT_FOOTER = "Essa mensagem será removida após 30 segundos."
 
 
 def register(bot: Bot, api: Api):
-    @bot.command(help='Insere um novo produto para ser entregue')
+    @bot.command(help="Insere um novo produto para ser entregue")
     async def add(
         ctx: Context,
         code: str = None,
@@ -55,9 +55,7 @@ def register(bot: Bot, api: Api):
                     Field(key="descrição", value=product.summary),
                     Field(
                         key="criado em",
-                        value=product.created_at.strftime(
-                            env.datetime_formatter
-                        ),
+                        value=product.created_at.strftime(env.datetime_formatter),
                         inline=False,
                     ),
                 ]
@@ -86,7 +84,7 @@ def register(bot: Bot, api: Api):
                 err_message=str(e),
             )
 
-    @bot.command(help='Permite editar um produto cadastrado anteriormente')
+    @bot.command(help="Permite editar um produto cadastrado anteriormente")
     async def edit(
         ctx: Context, uuid: str = None, code: str = None, summary: str = None
     ):
@@ -149,7 +147,7 @@ def register(bot: Bot, api: Api):
 
         ...
 
-    @bot.command(help='Remove um produto cadastrado para resgate')
+    @bot.command(help="Remove um produto cadastrado para resgate")
     async def remove(ctx: Context, uuid: str = None):
         if not uuid:
             await Messages.remove_message_and_answer(
@@ -169,7 +167,7 @@ def register(bot: Bot, api: Api):
                 uuid=uuid,
             )
 
-    @bot.command(help='Exibe os produtos registrados')
+    @bot.command(help="Exibe os produtos registrados")
     async def ls(ctx: Context, limit: str = "5"):
 
         products = api.list_products(
@@ -190,9 +188,7 @@ def register(bot: Bot, api: Api):
                             key="Disponíveis",
                             value=str(products.total.available),
                         ),
-                        Field(
-                            key="Resgatados", value=str(products.total.taken)
-                        ),
+                        Field(key="Resgatados", value=str(products.total.taken)),
                     ]
                 ],
             )
@@ -204,9 +200,7 @@ def register(bot: Bot, api: Api):
                     title=product.code,
                     fields=[
                         [
-                            Field(
-                                key="UUID", value=product.uuid, inline=False
-                            ),
+                            Field(key="UUID", value=product.uuid, inline=False),
                             Field(key="descrição", value=product.summary),
                             Field(
                                 key="criado em",

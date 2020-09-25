@@ -72,8 +72,7 @@ class Api:
         access_token = response.json().get("access_token")
         if not access_token:
             raise ValueError(
-                "The access_token key is not present "
-                "on Authorization response."
+                "The access_token key is not present " "on Authorization response."
             )
 
         self.access_token = access_token
@@ -166,9 +165,7 @@ class Api:
         )
 
         if response.status_code == 404:
-            raise ProductNotFound(
-                f"Product with uuid {product.uuid} not found."
-            )
+            raise ProductNotFound(f"Product with uuid {product.uuid} not found.")
 
         if response.status_code == 409:
             raise CodeAlreadyRegistered(
@@ -205,9 +202,7 @@ class Api:
         )
 
         if response.status_code == 404:
-            raise ProductNotFound(
-                f"Product with uuid {product.uuid} not found."
-            )
+            raise ProductNotFound(f"Product with uuid {product.uuid} not found.")
 
         if response.status_code == 401:
             raise ProductAlreadyTaken(
