@@ -7,7 +7,9 @@ from micebot.model.model import OrderQuery
 
 
 def register(bot: Bot, api: Api):
-    @bot.command()
+    @bot.command(help='Exibe os últimos pedidos entregues.\
+                 Traz as seguintes informações: data de entrega,\
+                 nome do moderador e nome de quem recebeu a premiação')
     async def orders(ctx: Context, limit: str = 5):
 
         response = api.list_orders(query=OrderQuery(limit=int(limit)))

@@ -26,7 +26,7 @@ DEFAULT_FOOTER = "Essa mensagem será removida após 30 segundos."
 
 
 def register(bot: Bot, api: Api):
-    @bot.command()
+    @bot.command(help='Insere um novo produto para ser entregue')
     async def add(
         ctx: Context,
         code: str = None,
@@ -86,7 +86,7 @@ def register(bot: Bot, api: Api):
                 err_message=str(e),
             )
 
-    @bot.command()
+    @bot.command(help='Permite editar um produto cadastrado anteriormente')
     async def edit(
         ctx: Context, uuid: str = None, code: str = None, summary: str = None
     ):
@@ -149,7 +149,7 @@ def register(bot: Bot, api: Api):
 
         ...
 
-    @bot.command()
+    @bot.command(help='Remove um produto cadastrado para resgate')
     async def remove(ctx: Context, uuid: str = None):
         if not uuid:
             await Messages.remove_message_and_answer(
@@ -169,7 +169,7 @@ def register(bot: Bot, api: Api):
                 uuid=uuid,
             )
 
-    @bot.command()
+    @bot.command(help='Exibe os produtos registrados')
     async def ls(ctx: Context, limit: str = "5"):
 
         products = api.list_products(
