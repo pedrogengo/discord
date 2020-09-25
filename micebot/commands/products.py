@@ -55,7 +55,9 @@ def register(bot: Bot, api: Api):
                     Field(key="descrição", value=product.summary),
                     Field(
                         key="criado em",
-                        value=product.created_at.strftime(env.datetime_formatter),
+                        value=product.created_at.strftime(
+                            env.datetime_formatter
+                        ),
                         inline=False,
                     ),
                 ]
@@ -188,7 +190,9 @@ def register(bot: Bot, api: Api):
                             key="Disponíveis",
                             value=str(products.total.available),
                         ),
-                        Field(key="Resgatados", value=str(products.total.taken)),
+                        Field(
+                            key="Resgatados", value=str(products.total.taken)
+                        ),
                     ]
                 ],
             )
@@ -200,7 +204,9 @@ def register(bot: Bot, api: Api):
                     title=product.code,
                     fields=[
                         [
-                            Field(key="UUID", value=product.uuid, inline=False),
+                            Field(
+                                key="UUID", value=product.uuid, inline=False
+                            ),
                             Field(key="descrição", value=product.summary),
                             Field(
                                 key="criado em",

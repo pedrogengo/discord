@@ -7,7 +7,9 @@ from micebot.model.env import env
 
 class Messages:
     @staticmethod
-    async def remove_message_and_answer(context: Context, message: enum.Enum, **kwargs):
+    async def remove_message_and_answer(
+        context: Context, message: enum.Enum, **kwargs
+    ):
         await context.message.delete()
         await context.channel.send(
             message.value.format(**kwargs),
